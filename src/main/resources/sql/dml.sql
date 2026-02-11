@@ -110,3 +110,18 @@ VALUES(24, NULL, 'JSON_PATH', '$[?(@.state == "INTENT_COLLISION")]', 'GET_SESSIO
 INSERT INTO ce_rule
 (rule_id, intent_code, rule_type, match_pattern, "action", action_value, priority, enabled, description, created_at)
 VALUES(25, NULL, 'JSON_PATH', '$[?(@.state == "INTENT_COLLISION")]', 'GET_CONTEXT', 'context', 42, true, 'Expose context for intent collision', '2026-02-08 00:00:00.000');
+
+
+INSERT INTO zp_container_query_info
+(container_query_id, container_id, query_string, count_query_string, pagination_query_string, query_params)
+VALUES(5001, 101, '
+SELECT
+    faq_id,
+    question,
+    answer,
+    1 - (embedding <=> CAST(:faqQueryEmbedding AS vector)) AS score
+FROM zp_faq
+WHERE enabled = true
+ORDER BY embedding <=> CAST(:faqQueryEmbedding AS vector)
+    limit 10
+    ', NULL, NULL, 'faqQueryEmbedding');
