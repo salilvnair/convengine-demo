@@ -1,0 +1,74 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: convengine
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/convengine
+    username: convengine_user
+    password: convengine_pwd
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none      # VERY IMPORTANT: DB managed manually
+      naming:
+        physical-strategy: com.github.salilvnair.ccf.config.hibernate.CcfPhysicalNamingStrategy
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          lob:
+            non_contextual_creation: true
+
+  jackson:
+    serialization:
+      indent_output: true
+
+logging:
+  level:
+    root: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+
+convengine:
+  llm:
+    provider: lmstudio
+    temperature: 0.3
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      model: gpt-4.1
+      base-url: https://api.openai.com
+    lmstudio:
+        api-key: ${LMSTUDIO_API_KEY}
+        model: meta-llama-3.1-8b-instruct-abliterated
+        base-url: http://localhost:1234
+
+  tables:
+    AUDIT: CE_AUDIT
+    CONTAINER_CONFIG: CE_CONTAINER_CONFIG
+    CONVERSATION: CE_CONVERSATION
+    INTENT: CE_INTENT
+    INTENT_CLASSIFIER: CE_INTENT_CLASSIFIER
+    LLM_CALL_LOG: CE_LLM_CALL_LOG
+    MCP_DB_TOOL: CE_MCP_DB_TOOL
+    MCP_TOOL: CE_MCP_TOOL
+    OUTPUT_SCHEMA: CE_OUTPUT_SCHEMA
+    PROMPT_TEMPLATE: CE_PROMPT_TEMPLATE
+    RESPONSE: CE_RESPONSE
+    RULE: CE_RULE
+    VALIDATION_SNAPSHOT: CE_VALIDATION_SNAPSHOT
+
+ccf:
+  core:
+    tables:
+      PAGE_COMMON_QUERY: ZP_PAGE_COMMON_QUERY
+      SECTION_INFO: ZP_SECTION_INFO
+      CONTAINER_INFO: ZP_CONTAINER_INFO
+      CONTAINER_FIELD_INFO: ZP_CONTAINER_FIELD_INFO
+      CONTAINER_QUERY_INFO: ZP_CONTAINER_QUERY_INFO
