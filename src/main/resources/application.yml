@@ -38,7 +38,7 @@ logging:
 
 convengine:
   llm:
-    provider: lmstudio
+    provider: openai
     temperature: 0.3
     openai:
       api-key: ${OPENAI_API_KEY}
