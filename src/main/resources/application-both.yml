@@ -1,0 +1,15 @@
+convengine:
+  demo:
+    stream-mode: BOTH
+  transport:
+    sse:
+      enabled: true
+      emitter-timeout-ms: 1800000
+    stomp:
+      enabled: true
+      endpoint: /ws-convengine
+      app-destination-prefix: /app
+      topic-prefix: /topic
+      audit-destination-base: /topic/convengine/audit
+      allowed-origin-pattern: "*"
+      sock-js: true

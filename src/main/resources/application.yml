@@ -37,6 +37,11 @@ logging:
 
 
 convengine:
+  demo:
+    stream-mode: SSE
+    step-hook:
+      enabled: true
+
   llm:
     provider: openai
     temperature: 0.3
@@ -48,6 +53,19 @@ convengine:
         api-key: ${LMSTUDIO_API_KEY}
         model: meta-llama-3.1-8b-instruct-abliterated
         base-url: http://localhost:1234
+
+  transport:
+    sse:
+      enabled: true
+      emitter-timeout-ms: 1800000
+    stomp:
+      enabled: false
+      endpoint: /ws-convengine
+      app-destination-prefix: /app
+      topic-prefix: /topic
+      audit-destination-base: /topic/convengine/audit
+      allowed-origin-pattern: "*"
+      sock-js: true
 
   tables:
     AUDIT: CE_AUDIT

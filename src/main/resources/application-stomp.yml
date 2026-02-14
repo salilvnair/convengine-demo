@@ -1,0 +1,14 @@
+convengine:
+  demo:
+    stream-mode: STOMP
+  transport:
+    sse:
+      enabled: false
+    stomp:
+      enabled: true
+      endpoint: /ws-convengine
+      app-destination-prefix: /app
+      topic-prefix: /topic
+      audit-destination-base: /topic/convengine/audit
+      allowed-origin-pattern: "*"
+      sock-js: true
