@@ -7,12 +7,10 @@ import com.github.salilvnair.api.processor.rest.model.RestWebServiceResponse;
 import com.github.salilvnair.convengdemo.llm.provider.lmstudio.context.LmStudioEmbeddingApiContext;
 import com.github.salilvnair.convengdemo.llm.provider.lmstudio.delegate.LmStudioEmbeddingRestWebserviceDelegate;
 import com.github.salilvnair.convengdemo.llm.provider.openai.context.OpenAiEmbeddingApiContext;
-import com.github.salilvnair.convengdemo.llm.provider.openai.delegate.OpenAiEmbeddingRestWebserviceDelegate;
 import com.github.salilvnair.convengdemo.llm.provider.openai.model.OpenAiEmbeddingRequest;
 import com.github.salilvnair.convengdemo.llm.provider.openai.model.OpenAiEmbeddingResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +30,7 @@ public class LmStudioEmbeddingRestWebserviceHandler implements RestWebServiceHan
             Map<String, Object> restWsMap,
             Object... objects
     ) {
-        OpenAiEmbeddingApiContext ctx = (OpenAiEmbeddingApiContext) objects[0];
+        LmStudioEmbeddingApiContext ctx = (LmStudioEmbeddingApiContext) objects[0];
 
         OpenAiEmbeddingRequest req = new OpenAiEmbeddingRequest();
         req.setModel(ctx.getModel());

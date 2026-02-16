@@ -42,6 +42,9 @@ convengine:
     step-hook:
       enabled: true
 
+  experimental:
+    enabled: true
+
   llm:
     provider: openai
     temperature: 0.3
@@ -51,7 +54,7 @@ convengine:
       base-url: https://api.openai.com
     lmstudio:
         api-key: ${LMSTUDIO_API_KEY}
-        model: meta-llama-3.1-8b-instruct-abliterated
+        model: openai/gpt-oss-20b
         base-url: http://localhost:1234
 
   transport:
