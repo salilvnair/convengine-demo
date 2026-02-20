@@ -6,7 +6,7 @@ spring:
     name: convengine
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/convengine
+    url: jdbc:postgresql://localhost:5432/convengine?currentSchema=v2,public
     username: convengine_user
     password: convengine_pwd
     driver-class-name: org.postgresql.Driver
@@ -37,6 +37,8 @@ logging:
 
 
 convengine:
+  schema:
+    active: v2
   demo:
     stream-mode: SSE
     step-hook:
@@ -71,15 +73,19 @@ convengine:
       sock-js: true
 
   tables:
+    CONFIG: CE_CONFIG
     AUDIT: CE_AUDIT
     CONTAINER_CONFIG: CE_CONTAINER_CONFIG
     CONVERSATION: CE_CONVERSATION
+    CONVERSATION_HISTORY: CE_CONVERSATION_HISTORY
     INTENT: CE_INTENT
     INTENT_CLASSIFIER: CE_INTENT_CLASSIFIER
     LLM_CALL_LOG: CE_LLM_CALL_LOG
     MCP_DB_TOOL: CE_MCP_DB_TOOL
     MCP_TOOL: CE_MCP_TOOL
     OUTPUT_SCHEMA: CE_OUTPUT_SCHEMA
+    POLICY: CE_POLICY
+    PENDING_ACTION: CE_PENDING_ACTION
     PROMPT_TEMPLATE: CE_PROMPT_TEMPLATE
     RESPONSE: CE_RESPONSE
     RULE: CE_RULE
