@@ -232,7 +232,10 @@ VALUES
  NULL, NULL, 40, true, 'Transfer success response'),
 (NULL, 'ANY', 'TEXT', 'EXACT',
  'Sorry, I did not understand that. Please rephrase.',
- NULL, NULL, 999, true, 'Global fallback response');
+ NULL, NULL, 999, true, 'Global fallback response'),
+('FAQ', 'IDLE', 'JSON', 'DERIVED',
+ NULL,
+ 'Answer using FAQ JSON prompt and include confidence give output as JSON only.', '{"type": "object", "required": ["answer", "confidence"], "properties": {"state": {"type": "string"}, "answer": {"type": "string"}, "intent": {"type": "string"}, "confidence": {"type": "number"}, "matchedFaqIds": {"type": "array", "items": {"type": "number"}}}, "additionalProperties": false}'::jsonb, 1, true, NULL);
 
 -- -----------------------------------------------------------------------------
 -- ce_container_config (FAQ container mapping example)
@@ -258,7 +261,8 @@ VALUES
 ('PIPELINE_RULES', 'CONNECTION_TRANSFER', 'AWAITING_CONFIRMATION', 'JSON_PATH',
  '$[?(@.state == ''AWAITING_CONFIRMATION'' && (@.pending_action_result == ''EXECUTED'' || @.inputParams.pending_action_result == ''EXECUTED''))]',
  'SET_STATE', 'COMPLETED', 200, true,
- 'After pending action execution move to COMPLETED');
+ 'After pending action execution move to COMPLETED'),
+('PIPELINE_RULES', 'FAQ', 'JSON_PATH', '$[?(@.hasContainerData == true)]', 'SET_TASK', 'faqRuleTask:injectContainerData', 71, true, NULL);
 
 -- -----------------------------------------------------------------------------
 -- ce_pending_action (v2 catalog)
