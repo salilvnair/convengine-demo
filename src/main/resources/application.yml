@@ -37,6 +37,8 @@ logging:
 
 
 convengine:
+  audit:
+    cache-inspector: true
   schema:
     active: v2
   demo:

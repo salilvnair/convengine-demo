@@ -4,15 +4,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.salilvnair.api.processor.rest.facade.RestWebServiceFacade;
 import com.github.salilvnair.ccf.annotation.EnableCcfCore;
 import com.github.salilvnair.convengine.annotation.EnableConvEngine;
-import org.springframework.boot.persistence.autoconfigure.EntityScan;
+import com.github.salilvnair.convengine.annotation.EnableConvEngineAsyncAuditDispatch;
+import com.github.salilvnair.convengine.annotation.EnableConvEngineAsyncConversation;
+import com.github.salilvnair.convengine.annotation.EnableConvEngineCaching;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Configuration
 @EnableConvEngine
 @EnableCcfCore
+@EnableConvEngineCaching
+@EnableConvEngineAsyncConversation
 public class ConvEngineConfig {
     @Bean
     public RestWebServiceFacade restWebServiceFacade() {

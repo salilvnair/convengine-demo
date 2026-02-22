@@ -146,6 +146,36 @@ VALUES(13, 'DialogueActStep', 'SCHEMA_PROMPT', '{
   "additionalProperties":false
 }', true, '2026-02-20 10:15:54.230');
 
+INSERT INTO ce_config
+(config_id, config_type, config_key, config_value, enabled, created_at)
+VALUES(14, 'DialogueActStep', 'QUERY_REWRITE_SYSTEM_PROMPT', ' You are a dialogue-act classifier and intelligent query search rewriter.
+                        Using the conversation history, rewrite the user''s text into an explicit, standalone query that perfectly describes their intent without needing the conversation history context.
+                        Also classify their dialogue act.
+                        Return JSON only matching the exact schema.', true, '2026-02-20 10:15:54.230');
+
+INSERT INTO ce_config
+(config_id, config_type, config_key, config_value, enabled, created_at)
+VALUES(15, 'DialogueActStep', 'QUERY_REWRITE_USER_PROMPT', '
+ Conversation History:
+ {{conversation_history}}
+
+ User input:
+ {{user_input}}
+', true, '2026-02-20 10:15:54.230');
+
+INSERT INTO ce_config
+(config_id, config_type, config_key, config_value, enabled, created_at)
+VALUES(16, 'DialogueActStep', 'QUERY_REWRITE_SCHEMA_JSON', '{
+  "type":"object",
+  "required":["dialogueAct","confidence","standaloneQuery"],
+  "properties":{
+    "dialogueAct":{"type":"string","enum":["AFFIRM","NEGATE","EDIT","RESET","QUESTION","NEW_REQUEST"]},
+    "confidence":{"type":"number"},
+    "standaloneQuery":{"type":"string"}
+  },
+  "additionalProperties":false
+}', true, '2026-02-20 10:15:54.230');
+
 
 -- -----------------------------------------------------------------------------
 -- ce_policy
@@ -197,11 +227,42 @@ VALUES
 -- ce_prompt_template
 -- -----------------------------------------------------------------------------
 INSERT INTO ce_prompt_template (intent_code, state_code, response_type, system_prompt, user_prompt, temperature, enabled)
-VALUES
-('FAQ', 'IDLE', 'TEXT',
- 'You are a concise FAQ assistant. Answer directly and clearly.',
- 'User question: {{user_input}}\nFAQ context: {{container_data}}\nReturn short helpful answer.',
- 0.10, true),
+VALUES('FAQ', 'IDLE', 'JSON', '
+You are a clarification resolution assistant.
+
+Rules:
+- You MUST use the conversation history to resolve ambiguity.
+- The user already confirmed intent earlier.
+- Do NOT repeat old questions.
+- If ambiguity is resolved, answer directly.
+- If still ambiguous, ask ONLY ONE short clarification question.
+- Set needsClarification=true only if absolutely required.
+- Confidence must reflect certainty.
+
+You MUST return valid JSON only.
+No explanations.
+', '
+Conversation history (latest first):
+{{conversation_history}}
+
+User message:
+{{user_input}}
+
+FAQ data:
+{{container_data}}
+
+Return JSON EXACTLY in this format:
+{
+  "answer": "<final answer or clarification question>",
+  "confidence": 0.0,
+  "matchedFaqIds": [],
+  "needsClarification": false
+}
+', 0.00, true),
+('FAQ', 'IDLE', 'SCHEMA_JSON',
+ 'Extract only valid JSON matching given schema.',
+ 'User input: {{user_input}}\nSchema: {{schema}}\nContext: {{context}}\nReturn JSON only.',
+ 0.00, true),
 ('CONNECTION_TRANSFER', 'COLLECT_INPUTS', 'SCHEMA_JSON',
  'Extract only valid JSON matching given schema.',
  'User input: {{user_input}}\nSchema: {{schema}}\nContext: {{context}}\nReturn JSON only.',
@@ -216,8 +277,9 @@ VALUES
 -- -----------------------------------------------------------------------------
 INSERT INTO ce_response (intent_code, state_code, output_format, response_type, exact_text, derivation_hint, json_schema, priority, enabled, description)
 VALUES
-('FAQ', 'IDLE', 'TEXT', 'DERIVED', NULL,
- 'Answer FAQ using available context and user question.', NULL, 10, true, 'FAQ derived text response'),
+('GREETING', 'ANY', 'TEXT', 'EXACT',
+ 'Hi 😁, How can I help you today?', NULL, NULL,
+ 50, true, 'Global greetings response'),
 ('CONNECTION_TRANSFER', 'IDLE', 'TEXT', 'EXACT',
  'Please share customerId, phone, email, source city, and target city to start transfer.',
  NULL, NULL, 10, true, 'Kick off transfer input collection'),
@@ -235,7 +297,9 @@ VALUES
  NULL, NULL, 999, true, 'Global fallback response'),
 ('FAQ', 'IDLE', 'JSON', 'DERIVED',
  NULL,
- 'Answer using FAQ JSON prompt and include confidence give output as JSON only.', '{"type": "object", "required": ["answer", "confidence"], "properties": {"state": {"type": "string"}, "answer": {"type": "string"}, "intent": {"type": "string"}, "confidence": {"type": "number"}, "matchedFaqIds": {"type": "array", "items": {"type": "number"}}}, "additionalProperties": false}'::jsonb, 1, true, NULL);
+ 'Answer using FAQ JSON prompt and include confidence give output as JSON only.',
+ '{"type": "object", "required": ["answer", "confidence"], "properties": {"state": {"type": "string"}, "answer": {"type": "string"}, "intent": {"type": "string"}, "confidence": {"type": "number"}, "matchedFaqIds": {"type": "array", "items": {"type": "number"}}}, "additionalProperties": false}'::jsonb,
+ 1, true, NULL);
 
 -- -----------------------------------------------------------------------------
 -- ce_container_config (FAQ container mapping example)
