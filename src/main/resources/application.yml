@@ -38,13 +38,35 @@ logging:
 
 convengine:
   audit:
-    cache-inspector: true
+    enabled: true
+#    persist-meta: false
+#    cache-inspector: false
+#    include-stages: [PIPELINE_TIMING]
   schema:
     active: v2
   demo:
     stream-mode: SSE
     step-hook:
       enabled: true
+
+    mockey:
+      base-url: http://localhost:31333
+      api-key: demo-live-key
+
+  mcp:
+    http-api:
+      defaults:
+        connect-timeout-ms: 2000
+        read-timeout-ms: 5000
+        max-attempts: 2
+        initial-backoff-ms: 200
+        max-backoff-ms: 2000
+        backoff-multiplier: 2.0
+        circuit-breaker-enabled: true
+        circuit-failure-threshold: 5
+        circuit-open-ms: 30000
+        retry-status-codes: [429, 502, 503, 504]
+        retry-on-io-exception: true
 
   experimental:
     enabled: true
@@ -85,6 +107,7 @@ convengine:
     LLM_CALL_LOG: CE_LLM_CALL_LOG
     MCP_DB_TOOL: CE_MCP_DB_TOOL
     MCP_TOOL: CE_MCP_TOOL
+    MCP_PLANNER: CE_MCP_PLANNER
     OUTPUT_SCHEMA: CE_OUTPUT_SCHEMA
     POLICY: CE_POLICY
     PENDING_ACTION: CE_PENDING_ACTION

@@ -2,6 +2,7 @@ SET search_path TO v2, public;
 
 -- Clean seedable tables (runtime tables intentionally skipped)
 TRUNCATE TABLE ce_mcp_db_tool RESTART IDENTITY CASCADE;
+TRUNCATE TABLE ce_mcp_planner RESTART IDENTITY CASCADE;
 TRUNCATE TABLE ce_mcp_tool RESTART IDENTITY CASCADE;
 TRUNCATE TABLE ce_pending_action RESTART IDENTITY CASCADE;
 TRUNCATE TABLE ce_rule RESTART IDENTITY CASCADE;
@@ -195,11 +196,11 @@ VALUES
 ('CONNECTION_TRANSFER', 'Transfer electricity connection from one city to another', 20, true, 'Connection Transfer', 'Move/transfer/relocation request'),
 ('UNKNOWN', 'Fallback intent', 999, true, 'Unknown', 'Fallback when no intent matches');
 
-INSERT INTO ce_intent_classifier (intent_code, rule_type, pattern, priority, enabled, description)
+INSERT INTO ce_intent_classifier (intent_code, state_code, rule_type, pattern, priority, enabled, description)
 VALUES
-('GREETING', 'REGEX', '(?i)\\b(hi|hello|hey|howdy|whats up)\\b', 15, true, 'GREETING regex matcher'),
-('FAQ', 'REGEX', '(?i)\\b(what|how|help|faq|information|details|explain)\\b', 10, true, 'FAQ regex matcher'),
-('CONNECTION_TRANSFER', 'REGEX', '(?i)\\b(move|transfer|shift|relocat(e|ion)|change city|connection transfer)\\b', 20, true, 'Connection transfer matcher');
+('GREETING', 'UNKNOWN', 'REGEX', '(?i)\\b(hi|hello|hey|howdy|whats up)\\b', 15, true, 'GREETING regex matcher'),
+('FAQ', 'UNKNOWN', 'REGEX', '(?i)\\b(what|how|help|faq|information|details|explain)\\b', 10, true, 'FAQ regex matcher'),
+('CONNECTION_TRANSFER', 'UNKNOWN', 'REGEX', '(?i)\\b(move|transfer|shift|relocat(e|ion)|change city|connection transfer)\\b', 20, true, 'Connection transfer matcher');
 
 -- -----------------------------------------------------------------------------
 -- ce_output_schema (v2 schema extraction)
@@ -292,7 +293,7 @@ VALUES
 ('CONNECTION_TRANSFER', 'COMPLETED', 'TEXT', 'EXACT',
  'Connection transfer request submitted successfully.',
  NULL, NULL, 40, true, 'Transfer success response'),
-(NULL, 'ANY', 'TEXT', 'EXACT',
+('UNKNOWN', 'ANY', 'TEXT', 'EXACT',
  'Sorry, I did not understand that. Please rephrase.',
  NULL, NULL, 999, true, 'Global fallback response'),
 ('FAQ', 'IDLE', 'JSON', 'DERIVED',
@@ -314,19 +315,19 @@ VALUES
 -- -----------------------------------------------------------------------------
 INSERT INTO ce_rule (phase, intent_code, state_code, rule_type, match_pattern, "action", action_value, priority, enabled, description)
 VALUES
-('AGENT_POST_INTENT', 'CONNECTION_TRANSFER', 'IDLE', 'REGEX', '.*', 'SET_STATE', 'COLLECT_INPUTS', 10, true,
+('POST_AGENT_INTENT', 'CONNECTION_TRANSFER', 'IDLE', 'REGEX', '.*', 'SET_STATE', 'COLLECT_INPUTS', 10, true,
  'Bootstrap connection transfer into COLLECT_INPUTS'),
-('PIPELINE_RULES', 'CONNECTION_TRANSFER', 'ANY', 'REGEX', '(?i)^(edit|revise|change)$', 'SET_STATE', 'COLLECT_INPUTS', 20, true,
+('PRE_RESPONSE_RESOLUTION', 'CONNECTION_TRANSFER', 'ANY', 'REGEX', '(?i)^(edit|revise|change)$', 'SET_STATE', 'COLLECT_INPUTS', 20, true,
  'Edit command returns to COLLECT_INPUTS'),
-('PIPELINE_RULES', 'CONNECTION_TRANSFER', 'COLLECT_INPUTS', 'JSON_PATH',
+('PRE_RESPONSE_RESOLUTION', 'CONNECTION_TRANSFER', 'COLLECT_INPUTS', 'JSON_PATH',
  '$[?(@.state == ''COLLECT_INPUTS'' && @.customerId && @.phone && @.email && @.sourceCity && @.targetCity)]',
  'SET_STATE', 'AWAITING_CONFIRMATION', 100, true,
  'All required transfer fields collected'),
-('PIPELINE_RULES', 'CONNECTION_TRANSFER', 'AWAITING_CONFIRMATION', 'JSON_PATH',
+('PRE_RESPONSE_RESOLUTION', 'CONNECTION_TRANSFER', 'AWAITING_CONFIRMATION', 'JSON_PATH',
  '$[?(@.state == ''AWAITING_CONFIRMATION'' && (@.pending_action_result == ''EXECUTED'' || @.inputParams.pending_action_result == ''EXECUTED''))]',
  'SET_STATE', 'COMPLETED', 200, true,
  'After pending action execution move to COMPLETED'),
-('PIPELINE_RULES', 'FAQ', 'JSON_PATH', '$[?(@.hasContainerData == true)]', 'SET_TASK', 'faqRuleTask:injectContainerData', 71, true, NULL);
+('PRE_RESPONSE_RESOLUTION', 'FAQ', 'ANY', 'JSON_PATH', '$[?(@.hasContainerData == true)]', 'SET_TASK', 'faqRuleTask:injectContainerData', 71, true, NULL);
 
 -- -----------------------------------------------------------------------------
 -- ce_pending_action (v2 catalog)
@@ -341,8 +342,8 @@ VALUES
 -- -----------------------------------------------------------------------------
 INSERT INTO ce_mcp_tool (tool_id, tool_code, tool_group, intent_code, state_code, enabled, description)
 VALUES
-(1, 'postgres.schema', 'DB', NULL, NULL, true, 'List table/column metadata'),
-(2, 'postgres.query', 'DB', NULL, NULL, true, 'Run safe parameterized SQL query');
+(1, 'postgres.schema', 'DB', 'ANY', 'ANY', true, 'List table/column metadata'),
+(2, 'postgres.query', 'DB', 'ANY', 'ANY', true, 'Run safe parameterized SQL query');
 
 INSERT INTO ce_mcp_db_tool (tool_id, dialect, sql_template, param_schema, safe_mode, max_rows, allowed_identifiers)
 VALUES
@@ -366,3 +367,57 @@ VALUES
 ('GENERAL', 'How long does connection transfer take?',
  'Typical processing time is 2 to 5 business days depending on verification and local service availability.',
  'sla,time,transfer', true, 20);
+
+-- -----------------------------------------------------------------------------
+-- MCP HTTP_API live mock tools (2.0.7 advanced HttpApiRequestingToolHandler demo)
+-- -----------------------------------------------------------------------------
+INSERT INTO ce_mcp_tool (tool_id, tool_code, tool_group, intent_code, state_code, enabled, description)
+VALUES
+(3, 'mock.order.submit', 'HTTP_API', 'ANY', 'ANY', true, 'Submit order through mockey live API'),
+(4, 'mock.order.status', 'HTTP_API', 'ANY', 'ANY', true, 'Fetch order status from mockey live API'),
+(5, 'mock.order.async.trace', 'HTTP_API', 'ANY', 'ANY', true, 'Fetch async callback trace from mockey live API'),
+(6, 'mock.customer.profile', 'HTTP_API', 'ANY', 'ANY', true, 'Fetch customer profile from mockey live API');
+
+-- -----------------------------------------------------------------------------
+-- Example 1 MCP diagnostics flow seed (ORDER_DIAGNOSTICS)
+-- -----------------------------------------------------------------------------
+INSERT INTO ce_intent (intent_code, description, priority, enabled, display_name, llm_hint)
+VALUES
+('ORDER_DIAGNOSTICS', 'Diagnose submitted order and missing async callback using MCP tools', 40, true, 'Order Diagnostics',
+ 'Use MCP HTTP tools to inspect order status and async callback trace, then summarize from MCP final answer.');
+
+INSERT INTO ce_intent_classifier (intent_code, state_code, rule_type, pattern, priority, enabled, description)
+VALUES
+('ORDER_DIAGNOSTICS', 'UNKNOWN', 'REGEX', '(?i)\\b(order|submitted|async|callback|trace|status|diagnostics?)\\b', 35, true,
+ 'Order diagnostics classifier');
+
+INSERT INTO ce_prompt_template (intent_code, state_code, response_type, system_prompt, user_prompt, temperature, enabled)
+VALUES
+('ORDER_DIAGNOSTICS', 'ANALYZE', 'TEXT',
+ 'You are an order diagnostics summarizer.',
+ 'Context JSON:\n{{context}}\n\nRead context.mcp.observations and context.mcp.finalAnswer. Summarize order status and callback diagnostics with only observed evidence.',
+ 0.00, true),
+('ORDER_DIAGNOSTICS', 'COMPLETED', 'TEXT',
+ 'You are an order diagnostics summarizer.',
+ 'Context JSON:\n{{context}}\n\nUse context.mcp.finalAnswer as primary final response. Use context.mcp.observations only for supporting details.',
+ 0.00, true);
+
+INSERT INTO ce_response (intent_code, state_code, output_format, response_type, exact_text, derivation_hint, json_schema, priority, enabled, description)
+VALUES
+('ORDER_DIAGNOSTICS', 'ANALYZE', 'TEXT', 'DERIVED',
+ NULL,
+ 'Use context.mcp.observations and context.mcp.finalAnswer to diagnose submitted order and callback status.',
+ NULL, 20, true, 'Order diagnostics derived response in ANALYZE state'),
+('ORDER_DIAGNOSTICS', 'COMPLETED', 'TEXT', 'DERIVED',
+ NULL,
+ 'Use context.mcp.finalAnswer as final answer. Keep concise and evidence-based from context.mcp.observations.',
+ NULL, 30, true, 'Order diagnostics completed response derived from MCP final answer');
+
+INSERT INTO ce_rule (phase, intent_code, state_code, rule_type, match_pattern, "action", action_value, priority, enabled, description)
+VALUES
+('POST_AGENT_INTENT', 'ORDER_DIAGNOSTICS', 'IDLE', 'REGEX', '.*', 'SET_STATE', 'ANALYZE', 40, true,
+ 'Bootstrap ORDER_DIAGNOSTICS into ANALYZE'),
+('POST_AGENT_MCP', 'ORDER_DIAGNOSTICS', 'ANALYZE', 'JSON_PATH',
+ '$[?(@.context.mcp.finalAnswer != ''null'' && @.context.mcp.finalAnswer != null && @.context.mcp.finalAnswer != '''')]',
+ 'SET_STATE', 'COMPLETED', 41, true,
+ 'Move ORDER_DIAGNOSTICS to COMPLETED when context.mcp.finalAnswer exists');
