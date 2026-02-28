@@ -3,7 +3,7 @@ package com.github.salilvnair.convengdemo.mcp.handler.mock.order.async.trace;
 import com.github.salilvnair.api.processor.rest.handler.RestWebServiceHandler;
 import com.github.salilvnair.convengdemo.mcp.handler.common.MockeyApiWsContext;
 import com.github.salilvnair.convengdemo.mcp.handler.mock.order.async.trace.handler.MockOrderAsyncTraceWsHandler;
-import com.github.salilvnair.convengine.engine.mcp.executor.adapter.HttpApiApiProcessorToolHandler;
+import com.github.salilvnair.convengine.engine.mcp.executor.adapter.HttpApiProcessorToolHandler;
 import com.github.salilvnair.convengine.engine.mcp.executor.http.ApiProcessorInvocationContext;
 import com.github.salilvnair.convengine.engine.session.EngineSession;
 import com.github.salilvnair.convengine.entity.CeMcpTool;
@@ -15,7 +15,7 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class MockOrderAsyncTraceToolHandler implements HttpApiApiProcessorToolHandler {
+public class MockOrderAsyncTraceToolHandler implements HttpApiProcessorToolHandler {
 
     private final MockOrderAsyncTraceWsHandler wsHandler;
 

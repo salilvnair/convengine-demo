@@ -4,7 +4,7 @@ import com.github.salilvnair.api.processor.rest.handler.RestWebServiceHandler;
 import com.github.salilvnair.convengdemo.mcp.handler.common.MockeyApiWsContext;
 import com.github.salilvnair.convengdemo.mcp.handler.loan.credit.rating.handler.LoanCreditRatingWsHandler;
 import com.github.salilvnair.convengdemo.mcp.handler.loan.credit.rating.model.LoanCreditRatingMcpResponse;
-import com.github.salilvnair.convengine.engine.mcp.executor.adapter.HttpApiApiProcessorToolHandler;
+import com.github.salilvnair.convengine.engine.mcp.executor.adapter.HttpApiProcessorToolHandler;
 import com.github.salilvnair.convengine.engine.mcp.executor.http.ApiProcessorInvocationContext;
 import com.github.salilvnair.convengine.engine.session.EngineSession;
 import com.github.salilvnair.convengine.entity.CeMcpTool;
@@ -16,7 +16,7 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class LoanCreditRatingToolHandler implements HttpApiApiProcessorToolHandler {
+public class LoanCreditRatingToolHandler implements HttpApiProcessorToolHandler {
 
     private final LoanCreditRatingWsHandler wsHandler;
 

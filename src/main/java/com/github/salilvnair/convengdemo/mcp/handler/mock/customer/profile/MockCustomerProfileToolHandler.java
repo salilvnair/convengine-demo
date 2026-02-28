@@ -3,7 +3,7 @@ package com.github.salilvnair.convengdemo.mcp.handler.mock.customer.profile;
 import com.github.salilvnair.api.processor.rest.handler.RestWebServiceHandler;
 import com.github.salilvnair.convengdemo.mcp.handler.common.MockeyApiWsContext;
 import com.github.salilvnair.convengdemo.mcp.handler.mock.customer.profile.handler.MockCustomerProfileWsHandler;
-import com.github.salilvnair.convengine.engine.mcp.executor.adapter.HttpApiApiProcessorToolHandler;
+import com.github.salilvnair.convengine.engine.mcp.executor.adapter.HttpApiProcessorToolHandler;
 import com.github.salilvnair.convengine.engine.mcp.executor.http.ApiProcessorInvocationContext;
 import com.github.salilvnair.convengine.engine.session.EngineSession;
 import com.github.salilvnair.convengine.entity.CeMcpTool;
@@ -15,7 +15,7 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class MockCustomerProfileToolHandler implements HttpApiApiProcessorToolHandler {
+public class MockCustomerProfileToolHandler implements HttpApiProcessorToolHandler {
 
     private final MockCustomerProfileWsHandler wsHandler;
 
