@@ -54,6 +54,10 @@ convengine:
       api-key: demo-live-key
 
   mcp:
+    tool-max-loops: 10
+    tool-call-delay-ms: 0
+    tool-call-delay-after-calls: 4
+    tool-call-delay-after-ms: 2000
     http-api:
       defaults:
         connect-timeout-ms: 2000
@@ -67,6 +71,11 @@ convengine:
         circuit-open-ms: 30000
         retry-status-codes: [429, 502, 503, 504]
         retry-on-io-exception: true
+    db:
+      semantic-catalog:
+        enabled: true
+      knowledge-graph:
+        enabled: true
 
   experimental:
     enabled: true

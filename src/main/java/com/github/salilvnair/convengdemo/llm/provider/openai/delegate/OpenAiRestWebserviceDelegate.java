@@ -13,7 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class OpenAiRestWebserviceDelegate implements RestWebServiceDelegate {
@@ -24,7 +26,8 @@ public class OpenAiRestWebserviceDelegate implements RestWebServiceDelegate {
     private String baseUrl;
 
     @Override
-    public RestWebServiceResponse invoke(RestWebServiceRequest restWebServiceRequest, Map<String, Object> map, Object... objects) {
+    public RestWebServiceResponse invoke(RestWebServiceRequest restWebServiceRequest, Map<String, Object> map,
+            Object... objects) {
         OpenAiApiContext ctx = (OpenAiApiContext) objects[0];
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + apiKey);
@@ -32,7 +35,33 @@ public class OpenAiRestWebserviceDelegate implements RestWebServiceDelegate {
         HttpEntity<?> requestEntity = new HttpEntity<>(restWebServiceRequest, headers);
         RestTemplate restTemplate = new RestTemplate();
         String apiUrl = baseUrl + (ctx.isStrictJson() ? "/v1/responses" : "/v1/chat/completions");
-        ResponseEntity<OpenAiResponse> responseEntity = restTemplate.exchange(apiUrl, HttpMethod.POST, requestEntity, OpenAiResponse.class);
+        ResponseEntity<OpenAiResponse> responseEntity = restTemplate.exchange(apiUrl, HttpMethod.POST, requestEntity,
+                OpenAiResponse.class);
         return responseEntity.getBody();
+    }
+
+    @Override
+    public boolean retry() {
+        return true;
+    }
+
+    @Override
+    public int maxRetries() {
+        return 3;
+    }
+
+    @Override
+    public int delay() {
+        return 6;
+    }
+
+    @Override
+    public TimeUnit delayTimeUnit() {
+        return TimeUnit.SECONDS;
+    }
+
+    @Override
+    public List<String> whiteListedExceptions() {
+        return List.of("429", "Too Many Requests", "Rate limit reached");
     }
 }
