@@ -5,6 +5,7 @@ import com.github.salilvnair.api.processor.rest.model.RestWebServiceResponse;
 import com.github.salilvnair.convengdemo.llm.provider.openai.context.OpenAiEmbeddingApiContext;
 import com.github.salilvnair.convengdemo.llm.provider.openai.handler.OpenAiEmbeddingRestWebserviceHandler;
 import com.github.salilvnair.convengine.entity.CeLlmCallLog;
+import com.github.salilvnair.convengine.engine.session.EngineSession;
 import com.github.salilvnair.convengine.llm.base.type.OutputType;
 import com.github.salilvnair.convengine.llm.context.LlmInvocationContext;
 import com.github.salilvnair.convengine.llm.core.LlmClient;
@@ -55,9 +56,10 @@ public class OpenAiLlmClient implements LlmClient {
     }
 
     @Override
-    public String generateText(String hint, String context) {
+    public String generateText(EngineSession session, String hint, String context) {
         OpenAiApiContext apiContext = OpenAiApiContext
                                         .builder()
+                                        .session(session)
                                         .model(model)
                                         .temperature(temperature())
                                         .hint(hint)
@@ -68,9 +70,10 @@ public class OpenAiLlmClient implements LlmClient {
     }
 
     @Override
-    public String generateJson(String hint, String jsonSchema, String context) {
+    public String generateJson(EngineSession session, String hint, String jsonSchema, String context) {
         OpenAiApiContext apiContext = OpenAiApiContext
                                         .builder()
+                                        .session(session)
                                         .model(model)
                                         .temperature(temperature())
                                         .hint(hint)
@@ -82,8 +85,9 @@ public class OpenAiLlmClient implements LlmClient {
     }
 
     @Override
-    public float[] generateEmbedding(String input) {
+    public float[] generateEmbedding(EngineSession session, String input) {
         OpenAiEmbeddingApiContext ctx = OpenAiEmbeddingApiContext.builder()
+                .session(session)
                 .model("text-embedding-3-small")
                 .input(input)
                 .build();
@@ -141,9 +145,10 @@ public class OpenAiLlmClient implements LlmClient {
     }
 
     @Override
-    public String generateJsonStrict(String hint, String jsonSchema, String context) {
+    public String generateJsonStrict(EngineSession session, String hint, String jsonSchema, String context) {
         OpenAiApiContext apiContext =
                 OpenAiApiContext.builder()
+                        .session(session)
                         .model(model)
                         .temperature(0.0)
                         .hint(hint)

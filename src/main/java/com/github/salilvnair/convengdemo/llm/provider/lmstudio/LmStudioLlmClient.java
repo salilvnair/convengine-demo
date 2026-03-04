@@ -6,6 +6,7 @@ import com.github.salilvnair.convengdemo.llm.provider.lmstudio.handler.LmStudioE
 import com.github.salilvnair.convengdemo.llm.provider.openai.model.OpenAiRequest;
 import com.github.salilvnair.convengdemo.llm.provider.openai.model.OpenAiResponse;
 import com.github.salilvnair.convengine.entity.CeLlmCallLog;
+import com.github.salilvnair.convengine.engine.session.EngineSession;
 import com.github.salilvnair.convengine.llm.base.type.OutputType;
 import com.github.salilvnair.convengine.llm.context.LlmInvocationContext;
 import com.github.salilvnair.convengine.llm.core.LlmClient;
@@ -39,9 +40,10 @@ public class LmStudioLlmClient implements LlmClient {
     private String model;
 
     @Override
-    public String generateText(String hint, String context) {
+    public String generateText(EngineSession session, String hint, String context) {
         return call(
                 LmStudioApiContext.builder()
+                        .session(session)
                         .model(model)
                         .hint(hint)
                         .userContext(context)
@@ -51,9 +53,10 @@ public class LmStudioLlmClient implements LlmClient {
     }
 
     @Override
-    public String generateJson(String hint, String jsonSchema, String context) {
+    public String generateJson(EngineSession session, String hint, String jsonSchema, String context) {
         return call(
                 LmStudioApiContext.builder()
+                        .session(session)
                         .model(model)
                         .hint(hint)
                         .jsonSchema(jsonSchema)
@@ -64,9 +67,10 @@ public class LmStudioLlmClient implements LlmClient {
     }
 
     @Override
-    public String generateJsonStrict(String hint, String jsonSchema, String context) {
+    public String generateJsonStrict(EngineSession session, String hint, String jsonSchema, String context) {
         return call(
                 LmStudioApiContext.builder()
+                        .session(session)
                         .model(model)
                         .hint(hint)
                         .jsonSchema(jsonSchema)
@@ -78,9 +82,10 @@ public class LmStudioLlmClient implements LlmClient {
     }
 
     @Override
-    public float[] generateEmbedding(String input) {
+    public float[] generateEmbedding(EngineSession session, String input) {
         LmStudioEmbeddingApiContext ctx = LmStudioEmbeddingApiContext
                                             .builder()
+                                            .session(session)
                                             .model("text-embedding-multilingual-e5-large-instruct")
                                             .input(input)
                                             .build();

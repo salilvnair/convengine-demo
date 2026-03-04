@@ -16,7 +16,7 @@ public class FaqSearchDataTask implements DataTask  {
 
     public void injectFaqQueryEmbedding(DataTaskContext dataTaskContext) {
         String faqQuery = (String) dataTaskContext.dataContext().getInputParams().get("faqQuery");
-        float[] floats = llm.generateEmbedding(faqQuery);
+        float[] floats = llm.generateEmbedding(null, faqQuery);
         String pgVector = FaqEmbeddingJob.toPgVector(floats);
         dataTaskContext.dataContext().getInputParams().put("faqQueryEmbedding", pgVector);
     }

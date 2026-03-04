@@ -1,5 +1,6 @@
 package com.github.salilvnair.convengdemo.llm.provider.openai.context;
 
+import com.github.salilvnair.convengine.engine.session.EngineSession;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,6 +9,7 @@ import lombok.Setter;
 @Setter
 @Builder
 public class OpenAiEmbeddingApiContext {
+    private EngineSession session;
 
     private String model;
     private String input;

@@ -32,7 +32,7 @@ public class FaqEmbeddingJob {
                 throw new IllegalStateException("FAQ " + faqId + " has empty question");
             }
 
-            float[] emb = llm.generateEmbedding(question);
+            float[] emb = llm.generateEmbedding(null, question);
 
             validateEmbedding(emb, faqId);
 
