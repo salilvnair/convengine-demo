@@ -72,10 +72,16 @@ convengine:
         retry-status-codes: [429, 502, 503, 504]
         retry-on-io-exception: true
     db:
+      query:
+        mode: semantic # semantic-catalog | knowledge-graph | semantic
+
       semantic-catalog:
         enabled: true
       knowledge-graph:
         enabled: true
+      semantic:
+        enabled: true
+        model-path: classpath:/mcp/semantic-layer.yaml
 
   experimental:
     enabled: true
