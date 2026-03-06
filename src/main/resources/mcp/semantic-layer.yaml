@@ -509,6 +509,16 @@ metrics:
       COUNT(CASE WHEN zp_disconnect_order.zp_disconnect_id IS NOT NULL
                  AND zp_billbank_record.zp_disconnect_id IS NULL THEN 1 END)
 
+value_patterns:
+  - from_field: requestId
+    to_field: disconnectOrderId
+    value_starts_with:
+      - DON
+  - from_field: disconnectOrderId
+    to_field: requestId
+    value_starts_with:
+      - ZPR
+
 intent_rules:
   don_failure_reason_details:
     description: stabilize DON-level failure asks to disconnect-order diagnostics output
@@ -526,11 +536,6 @@ intent_rules:
       - downstreamStatus
       - failureReason
       - requestId
-    field_remaps:
-      - from_field: requestId
-        to_field: disconnectOrderId
-        value_starts_with:
-          - DON
 
   request_failure_reason_details:
     description: stabilize request-level failure-reason asks to request diagnostics output
@@ -546,15 +551,6 @@ intent_rules:
     force_select:
       - requestId
       - failureReason
-    field_remaps:
-      - from_field: requestId
-        to_field: disconnectOrderId
-        value_starts_with:
-          - DON
-      - from_field: disconnectOrderId
-        to_field: requestId
-        value_starts_with:
-          - ZPR
 
   billbank_gap_details:
     description: force billbank-gap "details" asks into request+order detail mode with deterministic missing-linkage filter
