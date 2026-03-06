@@ -82,6 +82,18 @@ convengine:
       semantic:
         enabled: true
         model-path: classpath:/mcp/semantic-layer.yaml
+        sql-dialect: postgres
+        timezone: UTC
+        vector:
+          enabled: true
+          feedback-enabled: true # when false, USER_QUERY feedback embeddings are ignored
+          table: ce_mcp_semantic_embedding
+          namespace-column: namespace
+          target-type-column: target_type
+          target-name-column: target_name
+          embedding-column: embedding
+          metadata-column: metadata_json
+          max-results: 20
 
   experimental:
     enabled: true
