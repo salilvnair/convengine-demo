@@ -28,7 +28,7 @@
     </scm>
     <properties>
         <java.version>17</java.version>
-        <version.convengine>2.0.12</version.convengine>
+        <version.convengine>2.0.11</version.convengine>
     </properties>
     <dependencies>
         <dependency>
