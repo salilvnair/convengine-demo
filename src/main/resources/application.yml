@@ -83,9 +83,9 @@ convengine:
         enabled: true
       semantic:
         enabled: true
-        model-path: classpath:/mcp/semantic-layer.yaml
+        model-path: classpath:/mcp/semantic-layer.yml
         sql-dialect: postgres
-        timezone: UTC
+        timezone: America/Chicago
         vector:
           enabled: true
           feedback-enabled: true # when false, USER_QUERY feedback embeddings are ignored
