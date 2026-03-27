@@ -120,7 +120,7 @@ convengine:
       sock-js: true
 
   tables:
-    # Core CE tables (keep your existing ones)
+    # Core CE tables
     CONFIG: CE_CONFIG
     AUDIT: CE_AUDIT
     CONTAINER_CONFIG: CE_CONTAINER_CONFIG
@@ -140,7 +140,7 @@ convengine:
     RULE: CE_RULE
     VALIDATION_SNAPSHOT: CE_VALIDATION_SNAPSHOT
 
-    # YAML-derived semantic layer tables (new)
+    # YAML-derived semantic layer tables
     SEMANTIC_MODEL: CE_SEMANTIC_MODEL
     SEMANTIC_SETTING: CE_SEMANTIC_SETTING
     SEMANTIC_SOURCE_TABLE: CE_SEMANTIC_SOURCE_TABLE
@@ -156,7 +156,7 @@ convengine:
     SEMANTIC_RULE_DENY_OPERATION: CE_SEMANTIC_RULE_DENY_OPERATION
     SEMANTIC_RULE_CONFIG: CE_SEMANTIC_RULE_CONFIG
 
-    # Agent-2 semantic query tables (if you still use that flow)
+    # Agent-2 semantic query tables
     SEMANTIC_AMBIGUITY_OPTION: CE_SEMANTIC_AMBIGUITY_OPTION
     SEMANTIC_CONCEPT: CE_SEMANTIC_CONCEPT
     SEMANTIC_CONCEPT_EMBEDDING: CE_SEMANTIC_CONCEPT_EMBEDDING
