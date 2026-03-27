@@ -83,7 +83,6 @@ convengine:
         enabled: true
       semantic:
         enabled: true
-        model-path: classpath:/mcp/semantic-layer.yml
         sql-dialect: postgres
         timezone: America/Chicago
         vector:
