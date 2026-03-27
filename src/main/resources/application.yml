@@ -83,7 +83,7 @@ convengine:
         vector:
           enabled: true
           feedback-enabled: true # when false, USER_QUERY feedback embeddings are ignored
-          table: ce_mcp_semantic_embedding
+          table: ce_semantic_concept_embedding
           namespace-column: namespace
           target-type-column: target_type
           target-name-column: target_name
