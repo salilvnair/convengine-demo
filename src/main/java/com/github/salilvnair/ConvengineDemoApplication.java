@@ -8,7 +8,11 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
 @ComponentScan(
-        basePackages = {"com.github.salilvnair.convengdemo"}
+        basePackages = {
+                "com.github.salilvnair.convengdemo",
+                "com.github.salilvnair.convengine.builder",
+                "com.github.salilvnair.convengine.mcp"
+        }
 )
 @EntityScan(
         basePackages = {"com.github.salilvnair.convengdemo.entity"}
