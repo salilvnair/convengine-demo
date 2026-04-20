@@ -14,6 +14,7 @@ import com.github.salilvnair.convengine.repo.LlmCallLogRepository;
 import com.github.salilvnair.convengdemo.llm.provider.lmstudio.context.LmStudioApiContext;
 import com.github.salilvnair.convengdemo.llm.provider.lmstudio.handler.LmStudioRestWebserviceHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -21,9 +22,10 @@ import org.springframework.stereotype.Component;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Component
 @ConditionalOnProperty(
         name = "convengine.llm.provider",
@@ -38,6 +40,21 @@ public class LmStudioLlmClient implements LlmClient {
 
     @Value("${convengine.llm.lmstudio.model}")
     private String model;
+
+    private Map<String, Object> runtimeOverrides;
+
+    /** Runtime constructor — no Spring injection, no logging. */
+    public LmStudioLlmClient(RestWebServiceFacade restWebServiceFacade,
+                             LmStudioRestWebserviceHandler handler,
+                             String model,
+                             Map<String, Object> runtimeOverrides) {
+        this.restWebServiceFacade = restWebServiceFacade;
+        this.handler = handler;
+        this.model = model;
+        this.logRepo = null;
+        this.embeddingHandler = null;
+        this.runtimeOverrides = runtimeOverrides;
+    }
 
     @Override
     public String generateText(EngineSession session, String hint, String context) {
@@ -96,6 +113,9 @@ public class LmStudioLlmClient implements LlmClient {
     }
 
     private String call(LmStudioApiContext apiContext) {
+        if (logRepo == null) {
+            return callNoLog(apiContext);
+        }
         LlmInvocationContext ctx = LlmInvocationContext.get();
 
         CeLlmCallLog log = CeLlmCallLog.builder()
@@ -129,6 +149,17 @@ public class LmStudioLlmClient implements LlmClient {
         } finally {
             logRepo.save(log);
         }
+    }
+
+    private String callNoLog(LmStudioApiContext apiContext) {
+        restWebServiceFacade.initiate(handler, runtimeOverrides != null ? new HashMap<>(runtimeOverrides) : new HashMap<>(), apiContext);
+        OpenAiResponse response = apiContext.getResponse();
+        String content = response != null ? response.extractText() : "";
+        if (content == null) return "";
+        content = content.replaceAll("(?s)<think>.*?</think>", "").trim();
+        content = content.replace("```json\n", "").trim();
+        content = content.replace("\n```", "").trim();
+        return content;
     }
 
     private String flattenPrompt(List<OpenAiRequest.Message> messages) {

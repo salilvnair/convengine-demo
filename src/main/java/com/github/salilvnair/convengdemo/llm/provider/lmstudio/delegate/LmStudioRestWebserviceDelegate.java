@@ -23,6 +23,7 @@ public class LmStudioRestWebserviceDelegate implements RestWebServiceDelegate {
             Map<String, Object> map,
             Object... objects
     ) {
+        String resolvedBaseUrl = map.containsKey("baseUrl") ? (String) map.get("baseUrl") : baseUrl;
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -31,7 +32,7 @@ public class LmStudioRestWebserviceDelegate implements RestWebServiceDelegate {
 
         ResponseEntity<OpenAiResponse> response =
                 restTemplate.exchange(
-                        baseUrl + "/v1/chat/completions",
+                        resolvedBaseUrl + "/v1/chat/completions",
                         HttpMethod.POST,
                         entity,
                         OpenAiResponse.class

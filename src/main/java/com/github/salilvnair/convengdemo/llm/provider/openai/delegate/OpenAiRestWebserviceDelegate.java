@@ -44,12 +44,16 @@ public class OpenAiRestWebserviceDelegate implements RestWebServiceDelegate {
             Object... objects) {
         OpenAiApiContext ctx = (OpenAiApiContext) objects[0];
         ACTIVE_CONTEXT.set(ctx);
+        String resolvedApiKey = map.containsKey("apiKey") ? (String) map.get("apiKey") : apiKey;
+        String resolvedBaseUrl = map.containsKey("baseUrl") ? (String) map.get("baseUrl") : baseUrl;
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + apiKey);
         headers.set("Content-Type", "application/json");
+        if (resolvedApiKey != null && !resolvedApiKey.isBlank()) {
+            headers.set("Authorization", "Bearer " + resolvedApiKey);
+        }
         HttpEntity<?> requestEntity = new HttpEntity<>(restWebServiceRequest, headers);
         RestTemplate restTemplate = new RestTemplate();
-        String apiUrl = baseUrl + (ctx.isStrictJson() ? "/v1/responses" : "/v1/chat/completions");
+        String apiUrl = resolvedBaseUrl + (ctx.isStrictJson() ? "/v1/responses" : "/v1/chat/completions");
         try {
             ResponseEntity<OpenAiResponse> responseEntity = restTemplate.exchange(apiUrl, HttpMethod.POST, requestEntity,
                     OpenAiResponse.class);

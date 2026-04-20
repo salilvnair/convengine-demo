@@ -16,6 +16,7 @@ import com.github.salilvnair.convengdemo.llm.provider.openai.model.OpenAiRespons
 import com.github.salilvnair.convengine.repo.LlmCallLogRepository;
 import com.github.salilvnair.convengine.util.JsonUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -26,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Component
 @ConditionalOnProperty(
         name = "convengine.llm.provider",
@@ -46,6 +47,23 @@ public class OpenAiLlmClient implements LlmClient {
     private String temperature;
     @Value("${convengine.llm.openai.model}")
     private String model;
+
+    private Map<String, Object> runtimeOverrides;
+
+    /** Runtime constructor — no Spring injection, no logging. */
+    public OpenAiLlmClient(RestWebServiceFacade restWebServiceFacade,
+                           OpenAiRestWebserviceHandler handler,
+                           String model, double temperature,
+                           Map<String, Object> runtimeOverrides) {
+        this.restWebServiceFacade = restWebServiceFacade;
+        this.handler = handler;
+        this.model = model;
+        this.temperature = String.valueOf(temperature);
+        this.logRepo = null;
+        this.embeddingHandler = null;
+        this.provider = null;
+        this.runtimeOverrides = runtimeOverrides;
+    }
 
     public double temperature() {
         try {
@@ -98,6 +116,9 @@ public class OpenAiLlmClient implements LlmClient {
     }
 
     private String callLlm(OpenAiApiContext apiContext) {
+        if (logRepo == null) {
+            return callLlmNoLog(apiContext);
+        }
         LlmInvocationContext ctx = LlmInvocationContext.get();
         CeLlmCallLog log = CeLlmCallLog.builder()
                 .conversationId(
@@ -136,6 +157,12 @@ public class OpenAiLlmClient implements LlmClient {
         } finally {
             logRepo.save(log);
         }
+    }
+
+    private String callLlmNoLog(OpenAiApiContext apiContext) {
+        restWebServiceFacade.initiate(handler, runtimeOverrides != null ? new HashMap<>(runtimeOverrides) : new HashMap<>(), apiContext);
+        OpenAiResponse response = apiContext.getResponse();
+        return response != null ? response.extractText() : "";
     }
 
     private String flattenPrompt(List<OpenAiRequest.Message> messages) {
