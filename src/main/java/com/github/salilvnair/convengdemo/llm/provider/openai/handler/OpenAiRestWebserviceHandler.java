@@ -126,7 +126,8 @@ public class OpenAiRestWebserviceHandler implements RestWebServiceHandler {
     private List<OpenAiRequest.Message> buildJsonMessages( OpenAiApiContext ctx ) {
         String hint = ctx.getHint();
         String jsonSchema = ctx.getJsonSchema();
-        return List.of(
+        String userContext = ctx.getUserContext();
+        var msgs = new java.util.ArrayList<>(List.of(
                 OpenAiRequest.Message.builder()
                         .role("system")
                         .content("""
@@ -143,7 +144,16 @@ public class OpenAiRestWebserviceHandler implements RestWebServiceHandler {
                 OpenAiRequest.Message.builder()
                         .role("system")
                         .content(hint)
-                        .build());
+                        .build()));
+        // Include user context (input) as a user message so the LLM sees the
+        // actual data to extract from — mirrors text-mode behaviour.
+        if (userContext != null && !userContext.isBlank()) {
+            msgs.add(OpenAiRequest.Message.builder()
+                    .role("user")
+                    .content(userContext)
+                    .build());
+        }
+        return msgs;
     }
 
     @Override
