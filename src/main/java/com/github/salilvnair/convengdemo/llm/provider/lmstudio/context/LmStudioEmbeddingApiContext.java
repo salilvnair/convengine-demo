@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @Builder
 public class LmStudioEmbeddingApiContext {
-    private EngineSession session;
+//    private EngineSession session;
 
     private String model;
     private String input;
