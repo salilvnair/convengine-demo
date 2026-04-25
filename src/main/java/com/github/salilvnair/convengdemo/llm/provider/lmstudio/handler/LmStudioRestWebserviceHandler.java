@@ -5,6 +5,7 @@ import com.github.salilvnair.api.processor.rest.handler.RestWebServiceDelegate;
 import com.github.salilvnair.api.processor.rest.handler.RestWebServiceHandler;
 import com.github.salilvnair.api.processor.rest.model.RestWebServiceRequest;
 import com.github.salilvnair.api.processor.rest.model.RestWebServiceResponse;
+import com.github.salilvnair.convengine.engine.history.model.ConversationTurn;
 import com.github.salilvnair.convengdemo.llm.provider.lmstudio.context.LmStudioApiContext;
 import com.github.salilvnair.convengdemo.llm.provider.lmstudio.delegate.LmStudioRestWebserviceDelegate;
 import com.github.salilvnair.convengdemo.llm.provider.openai.model.OpenAiRequest;
@@ -12,6 +13,8 @@ import com.github.salilvnair.convengdemo.llm.provider.openai.model.OpenAiRespons
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -34,16 +37,24 @@ public class LmStudioRestWebserviceHandler implements RestWebServiceHandler {
         OpenAiRequest req = new OpenAiRequest();
         req.setModel(ctx.getModel());
 
-        List<OpenAiRequest.Message> messages = List.of(
-                OpenAiRequest.Message.builder()
-                        .role("system")
-                        .content(ctx.getHint())
-                        .build(),
-                OpenAiRequest.Message.builder()
-                        .role("user")
-                        .content(ctx.getUserContext())
-                        .build()
-        );
+        List<ConversationTurn> history = ctx.getSession() != null
+                ? ctx.getSession().conversionHistory()
+                : Collections.emptyList();
+
+        List<OpenAiRequest.Message> messages = new ArrayList<>();
+        messages.add(OpenAiRequest.Message.builder()
+                .role("system")
+                .content(ctx.getHint())
+                .build());
+        // Inject prior conversation turns before the current user message
+        for (ConversationTurn turn : history) {
+            messages.add(OpenAiRequest.Message.builder().role("user").content(turn.user()).build());
+            messages.add(OpenAiRequest.Message.builder().role("assistant").content(turn.assistant()).build());
+        }
+        messages.add(OpenAiRequest.Message.builder()
+                .role("user")
+                .content(ctx.getUserContext())
+                .build());
 
         req.setMessages(messages);
         ctx.setMessages(messages);

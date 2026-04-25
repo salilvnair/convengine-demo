@@ -5,6 +5,8 @@ import com.github.salilvnair.api.processor.rest.handler.RestWebServiceDelegate;
 import com.github.salilvnair.api.processor.rest.handler.RestWebServiceHandler;
 import com.github.salilvnair.api.processor.rest.model.RestWebServiceRequest;
 import com.github.salilvnair.api.processor.rest.model.RestWebServiceResponse;
+import com.github.salilvnair.convengine.engine.history.model.ConversationTurn;
+import com.github.salilvnair.convengine.engine.session.EngineSession;
 import com.github.salilvnair.convengine.llm.base.type.OutputType;
 import com.github.salilvnair.convengdemo.llm.provider.openai.context.OpenAiApiContext;
 import com.github.salilvnair.convengdemo.llm.provider.openai.delegate.OpenAiRestWebserviceDelegate;
@@ -14,6 +16,8 @@ import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +51,7 @@ public class OpenAiRestWebserviceHandler implements RestWebServiceHandler {
         if (OutputType.TEXT.equals(ctx.getType())) {
 
             List<OpenAiRequest.Message> messages =
-                    buildTextMessages(ctx.getHint(), ctx.getUserContext());
+                    buildTextMessages(ctx.getHint(), ctx.getUserContext(), ctx.getSession());
 
             req.setMessages(messages);
             ctx.setMessages(messages);
@@ -105,22 +109,29 @@ public class OpenAiRestWebserviceHandler implements RestWebServiceHandler {
 
     private List<OpenAiRequest.Message> buildTextMessages(
             String hint,
-            String userText
+            String userText,
+            EngineSession session
     ) {
-        return List.of(
-                OpenAiRequest.Message.builder()
-                        .role("system")
-                        .content("You are a concise conversational assistant.")
-                        .build(),
-                OpenAiRequest.Message.builder()
-                        .role("system")
-                        .content(hint)
-                        .build(),
-                OpenAiRequest.Message.builder()
-                        .role("user")
-                        .content(userText)
-                        .build()
-        );
+        List<ConversationTurn> history = session != null ? session.conversionHistory() : Collections.emptyList();
+        List<OpenAiRequest.Message> msgs = new ArrayList<>();
+        msgs.add(OpenAiRequest.Message.builder()
+                .role("system")
+                .content("You are a concise conversational assistant.")
+                .build());
+        msgs.add(OpenAiRequest.Message.builder()
+                .role("system")
+                .content(hint)
+                .build());
+        // Inject prior conversation turns before the current user message
+        for (ConversationTurn turn : history) {
+            msgs.add(OpenAiRequest.Message.builder().role("user").content(turn.user()).build());
+            msgs.add(OpenAiRequest.Message.builder().role("assistant").content(turn.assistant()).build());
+        }
+        msgs.add(OpenAiRequest.Message.builder()
+                .role("user")
+                .content(userText)
+                .build());
+        return msgs;
     }
 
     private List<OpenAiRequest.Message> buildJsonMessages( OpenAiApiContext ctx ) {
