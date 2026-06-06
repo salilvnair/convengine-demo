@@ -1,6 +1,6 @@
 package com.github.salilvnair.convengdemo.mcp.handler.common;
 
-import com.github.salilvnair.convengine.engine.mcp.executor.http.ApiProcessorInvocationContext;
+import com.github.salilvnair.convengine.engine.agent.executor.http.ApiProcessorInvocationContext;
 import lombok.Getter;
 import lombok.Setter;
 

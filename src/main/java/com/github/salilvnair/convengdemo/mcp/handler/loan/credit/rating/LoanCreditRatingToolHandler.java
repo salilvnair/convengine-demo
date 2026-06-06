@@ -4,10 +4,10 @@ import com.github.salilvnair.api.processor.rest.handler.RestWebServiceHandler;
 import com.github.salilvnair.convengdemo.mcp.handler.common.MockeyApiWsContext;
 import com.github.salilvnair.convengdemo.mcp.handler.loan.credit.rating.handler.LoanCreditRatingWsHandler;
 import com.github.salilvnair.convengdemo.mcp.handler.loan.credit.rating.model.LoanCreditRatingMcpResponse;
-import com.github.salilvnair.convengine.engine.mcp.executor.adapter.HttpApiProcessorToolHandler;
-import com.github.salilvnair.convengine.engine.mcp.executor.http.ApiProcessorInvocationContext;
+import com.github.salilvnair.convengine.engine.agent.executor.adapter.HttpApiProcessorToolHandler;
+import com.github.salilvnair.convengine.engine.agent.executor.http.ApiProcessorInvocationContext;
 import com.github.salilvnair.convengine.engine.session.EngineSession;
-import com.github.salilvnair.convengine.entity.CeMcpTool;
+import com.github.salilvnair.convengine.entity.CeAgentTool;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -26,12 +26,12 @@ public class LoanCreditRatingToolHandler implements HttpApiProcessorToolHandler 
     }
 
     @Override
-    public RestWebServiceHandler wsHandler(CeMcpTool tool, Map<String, Object> args, EngineSession session) {
+    public RestWebServiceHandler wsHandler(CeAgentTool tool, Map<String, Object> args, EngineSession session) {
         return wsHandler;
     }
 
     @Override
-    public ApiProcessorInvocationContext wsContext(CeMcpTool tool, Map<String, Object> args, EngineSession session) {
+    public ApiProcessorInvocationContext wsContext(CeAgentTool tool, Map<String, Object> args, EngineSession session) {
         Map<String, Object> safeArgs = args == null ? Map.of() : args;
         MockeyApiWsContext context = new MockeyApiWsContext(safeArgs);
         context.setMethod("GET");
@@ -47,7 +47,7 @@ public class LoanCreditRatingToolHandler implements HttpApiProcessorToolHandler 
     }
 
     @Override
-    public Class<?> responseMapperClass(CeMcpTool tool, Map<String, Object> args, EngineSession session) {
+    public Class<?> responseMapperClass(CeAgentTool tool, Map<String, Object> args, EngineSession session) {
         return LoanCreditRatingMcpResponse.class;
     }
 }

@@ -1,14 +1,14 @@
 package com.github.salilvnair.convengdemo.mcp.handler.loan.debt.summary;
 
 import com.github.salilvnair.convengdemo.config.MockeyApiProperties;
-import com.github.salilvnair.convengine.engine.mcp.executor.adapter.HttpApiRequestingToolHandler;
-import com.github.salilvnair.convengine.engine.mcp.executor.http.HttpApiAuthSpec;
-import com.github.salilvnair.convengine.engine.mcp.executor.http.HttpApiAuthType;
-import com.github.salilvnair.convengine.engine.mcp.executor.http.HttpApiRequestSpec;
-import com.github.salilvnair.convengine.engine.mcp.executor.http.HttpApiResponseMapping;
-import com.github.salilvnair.convengine.engine.mcp.executor.http.HttpApiResponseMappingMode;
+import com.github.salilvnair.convengine.engine.agent.executor.adapter.HttpApiRequestingToolHandler;
+import com.github.salilvnair.convengine.engine.agent.executor.http.HttpApiAuthSpec;
+import com.github.salilvnair.convengine.engine.agent.executor.http.HttpApiAuthType;
+import com.github.salilvnair.convengine.engine.agent.executor.http.HttpApiRequestSpec;
+import com.github.salilvnair.convengine.engine.agent.executor.http.HttpApiResponseMapping;
+import com.github.salilvnair.convengine.engine.agent.executor.http.HttpApiResponseMappingMode;
 import com.github.salilvnair.convengine.engine.session.EngineSession;
-import com.github.salilvnair.convengine.entity.CeMcpTool;
+import com.github.salilvnair.convengine.entity.CeAgentTool;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +26,7 @@ public class LoanDebtSummaryToolHandler implements HttpApiRequestingToolHandler 
     }
 
     @Override
-    public HttpApiRequestSpec requestSpec(CeMcpTool tool, Map<String, Object> args, EngineSession session) {
+    public HttpApiRequestSpec requestSpec(CeAgentTool tool, Map<String, Object> args, EngineSession session) {
         Map<String, Object> safeArgs = args == null ? Map.of() : args;
         return new HttpApiRequestSpec(
                 "GET",
