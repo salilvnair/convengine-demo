@@ -7,11 +7,13 @@ import com.github.salilvnair.convengine.annotation.EnableConvEngine;
 import com.github.salilvnair.convengine.annotation.EnableConvEngineAsyncAuditDispatch;
 import com.github.salilvnair.convengine.annotation.EnableConvEngineAsyncConversation;
 import com.github.salilvnair.convengine.annotation.EnableConvEngineCaching;
+import com.github.salilvnair.convengine.builder.annotation.EnableConvEngineBuilderStudio;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableConvEngine
+@EnableConvEngineBuilderStudio
 @EnableCcfCore
 @EnableConvEngineCaching
 @EnableConvEngineAsyncConversation
